@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Watch Ad</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Monetag Ad Script (MUST be in <head>) -->
+    <script src='//whephiwums.com/sdk.js' data-zone='9271711' data-sdk='show_9271711'></script>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 20px; }
+        #timer { font-size: 24px; margin: 20px; }
+        #ad-container { margin: 20px auto; width: 300px; height: 250px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Watch Ad</h1>
+    <div id="ad-container"><!-- Ad loads here --></div>
+    <div id="timer">Time left: <span id="time">00:00</span></div>
+
+    <script>
+        // Get parameters from URL (?duration=15&user=123)
+        const urlParams = new URLSearchParams(window.location.search);
+        const duration = parseInt(urlParams.get('duration')) || 15;
+        const userId = urlParams.get('user');
+
+        // Start countdown
+        let timeLeft = duration;
+        const timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('time').textContent = 
+                `${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                // Send data back to Telegram bot
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.sendData(JSON.stringify({
+                        user_id: userId,
+                        duration: duration
+                    }));
+                    window.Telegram.WebApp.close();
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
